@@ -28,7 +28,7 @@ func TestTemplate_UnknownFunc(t *testing.T) {
 	defer deleteTempfile(in, t)
 
 	tmpl, _ := NewTemplate(in.Name())
-	err := tmpl.Execute(nil)
+	err := tmpl.Execute(nil, nil)
 	if err == nil {
 		t.Fatal("expected an error, but got nil")
 	}
@@ -36,7 +36,8 @@ func TestTemplate_UnknownFunc(t *testing.T) {
 
 // Test that template rendering resolves dependencies
 func TestTemplate_Render(t *testing.T) {
-	in := createTempfile([]byte(`host = {{ key "service/myservice/db/host" }}`), t)
+	in := createTempfile([]byte(`host = {{ key "service/myservice/db/host" }}
+password = {{ with secret "secret/myservice/db" }}{{ .Data.password }}{{ end }}`), t)
 	defer deleteTempfile(in, t)
 
 	tmpl, _ := NewTemplate(in.Name())
@@ -45,9 +46,18 @@ func TestTemplate_Render(t *testing.T) {
 	cd["service/myservice/db/host"] = "my-host"
 	consul := &InMemoryClient{cd}
 
-	tmpl.Execute(consul)
+	vd := make(map[string]interface{})
+	vd["secret/myservice/db"] = map[string]interface{}{
+		"Data": map[string]interface{}{
+			"password": "my-password",
+		},
+	}
+	vault := &InMemoryClient{vd}
 
-	out := `host = my-host`
+	tmpl.Execute(consul, vault)
+
+	out := `host = my-host
+password = my-password`
 	if tmpl.Contents() != out {
 		t.Fatalf("expected %q to match %q", tmpl.Contents(), out)
 	}

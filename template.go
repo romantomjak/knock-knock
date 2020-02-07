@@ -7,7 +7,7 @@ import (
 	"text/template"
 )
 
-func keyFunc(c Client) func(string) (interface{}, error) {
+func clientFunc(c Client) func(string) (interface{}, error) {
 	return func(path string) (interface{}, error) {
 		return c.Read(path)
 	}
@@ -29,10 +29,11 @@ func NewTemplate(filename string) (*Template, error) {
 }
 
 // Execute evaluates the template
-func (t *Template) Execute(consul Client) error {
+func (t *Template) Execute(consul Client, vault Client) error {
 	tmpl := template.New("")
 	tmpl.Funcs(template.FuncMap{
-		"key": keyFunc(consul),
+		"key":    clientFunc(consul),
+		"secret": clientFunc(vault),
 	})
 
 	tmpl, err := tmpl.Parse(t.contents)

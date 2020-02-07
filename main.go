@@ -6,7 +6,7 @@ func main() {
 		panic(err)
 	}
 
-	err = tmpl.Execute(nil)
+	err = tmpl.Execute(nil, nil)
 	if err != nil {
 		panic(err)
 	}
