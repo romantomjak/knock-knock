@@ -32,13 +32,24 @@ Configuration file is a [Go template](https://golang.org/pkg/html/template/) wit
 [myservice]
 host = {{ key "services/myservice/db/host" }}
 port = 5432
-username = {{ with secret "secret/myservice/db" }}{{ .Data.username }}{{ end }}
-password = {{ with secret "secret/myservice/db" }}{{ .Data.password }}{{ end }}
+username = {{ with secret "secret/services/myservice/db" }}{{ .Data.username }}{{ end }}
+password = {{ with secret "secret/services/myservice/db" }}{{ .Data.password }}{{ end }}
 dbname = {{ key "services/myservice/db/database" }}
 ```
 
 TOML sections are your service names. `key` retrieves values from Consul and
 likewise `secret` is for retrieving secrets from Vault.
+
+#### Vault K/V version 2 backend
+
+To access a versioned secret value:
+
+```
+password = {{ with secret "secret/services/myservice/db" }}{{ .Data.data.password }}{{ end }}
+```
+
+Note the nested `.Data.data` syntax when referencing the secret value. For more
+information about using the K/V v2 backend, see the [Vault Documentation](https://www.vaultproject.io/docs/secrets/kv/kv-v2/).
 
 ### Usage
 
