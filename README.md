@@ -25,7 +25,7 @@ or grab a binary from [releases](knock-knock/releases/latest) section!
 
 Configuration file is a [Go template](https://golang.org/pkg/html/template/) with [TOML](https://en.wikipedia.org/wiki/TOML) syntax and by default is searched in `~/.knock-knock.toml`
 
-```toml
+```hcl
 [myservice]
 host = {{ key "services/myservice/db/host" }}
 port = 5432
@@ -41,7 +41,7 @@ likewise `secret` is for retrieving secrets from Vault.
 
 To access a versioned secret value:
 
-```
+```t
 password = {{ with secret "secret/services/myservice/db" }}{{ .Data.data.password }}{{ end }}
 ```
 
