@@ -11,7 +11,12 @@ func main() {
 		panic(err)
 	}
 
-	err = tmpl.Execute(consul, nil)
+	vault, err := NewVaultClient()
+	if err != nil {
+		panic(err)
+	}
+
+	err = tmpl.Execute(consul, vault)
 	if err != nil {
 		panic(err)
 	}
