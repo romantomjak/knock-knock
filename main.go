@@ -1,9 +1,25 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"io"
 	"os"
+	"strings"
+)
+
+const (
+	usage = `
+Usage: knock-knock [options] service
+
+  Reads a template file with KV and secret paths and renders service
+  credentials on screen.
+
+Options:
+
+  -c=<path>
+	The path to a configuration file on disk. Defaults to ~/.knock-knock.toml
+`
 )
 
 func main() {
@@ -11,7 +27,28 @@ func main() {
 }
 
 func Run(stdin io.Reader, stdout, stderr io.Writer, args []string) int {
-	tmpl, err := NewTemplate("/Users/romantomjak/.knock-knock.toml")
+	var config string
+
+	flags := flag.NewFlagSet("knock-knock", flag.ContinueOnError)
+	flags.StringVar(&config, "c", "", "configuration file")
+	flags.Usage = func() {
+		fmt.Fprintln(stderr, strings.TrimSpace(usage))
+	}
+
+	if err := flags.Parse(args); err != nil {
+		return 1
+	}
+
+	if config == "" {
+		home, err := os.UserHomeDir()
+		if err != nil {
+			fmt.Fprintln(stderr, err)
+			return 1
+		}
+		config = fmt.Sprintf("%s/.knock-knock.toml", home)
+	}
+
+	tmpl, err := NewTemplate(config)
 	if err != nil {
 		fmt.Fprintln(stderr, err)
 		return 1
