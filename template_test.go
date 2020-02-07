@@ -20,15 +20,23 @@ func TestTemplate_Render(t *testing.T) {
 	defer deleteTempfile(in, t)
 
 	tmpl, _ := NewTemplate(in.Name())
-
-	err := tmpl.Execute()
-	if err != nil {
-		t.Fatal("unexpected error")
-	}
+	tmpl.Execute()
 
 	out := "hello world"
 	if tmpl.Contents() != out {
 		t.Fatalf("expected %q to match %q", tmpl.Contents(), out)
+	}
+}
+
+// Test that parser returns errors when unknown functions are used in templates
+func TestTemplate_UnknownFunc(t *testing.T) {
+	in := createTempfile([]byte(`host = {{ unknownfunc "service/myservice/db/host" }}`), t)
+	defer deleteTempfile(in, t)
+
+	tmpl, _ := NewTemplate(in.Name())
+	err := tmpl.Execute()
+	if err == nil {
+		t.Fatal("expected an error")
 	}
 }
 
