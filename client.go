@@ -32,6 +32,9 @@ func (c *Consul) Read(path string) (interface{}, error) {
 	if err != nil {
 		return nil, fmt.Errorf("client: consul: %s", err)
 	}
+	if pair == nil {
+		return nil, fmt.Errorf("client: consul: key %q does not exist", path)
+	}
 	value := string(pair.Value)
 	return value, nil
 }
