@@ -30,11 +30,11 @@ Configuration file is a [Go template](https://golang.org/pkg/html/template/) wit
 
 ```toml
 [myservice]
-host = {{ key "service/myservice/db/host" }}
+host = {{ key "services/myservice/db/host" }}
 port = 5432
 username = {{ with secret "secret/myservice/db" }}{{ .Data.username }}{{ end }}
 password = {{ with secret "secret/myservice/db" }}{{ .Data.password }}{{ end }}
-dbname = {{ key "service/myservice/db/database" }}
+dbname = {{ key "services/myservice/db/database" }}
 ```
 
 TOML sections are your service names. `key` retrieves values from Consul and

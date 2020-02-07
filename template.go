@@ -38,13 +38,13 @@ func (t *Template) Execute(consul Client, vault Client) error {
 
 	tmpl, err := tmpl.Parse(t.contents)
 	if err != nil {
-		return fmt.Errorf("template: %s", err)
+		return fmt.Errorf("parse: %s", err)
 	}
 
 	var out bytes.Buffer
 	err = tmpl.Execute(&out, nil)
 	if err != nil {
-		return fmt.Errorf("template: %s", err)
+		return fmt.Errorf("execute: %s", err)
 	}
 
 	t.contents = out.String()

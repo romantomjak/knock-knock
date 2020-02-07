@@ -6,7 +6,12 @@ func main() {
 		panic(err)
 	}
 
-	err = tmpl.Execute(nil, nil)
+	consul, err := NewConsulClient()
+	if err != nil {
+		panic(err)
+	}
+
+	err = tmpl.Execute(consul, nil)
 	if err != nil {
 		panic(err)
 	}
