@@ -7,6 +7,12 @@ import (
 	"text/template"
 )
 
+func keyFunc(c Client) func(string) (interface{}, error) {
+	return func(path string) (interface{}, error) {
+		return c.Read(path)
+	}
+}
+
 // Template is the internal representation of a configuration file
 type Template struct {
 	filename string
@@ -23,8 +29,11 @@ func NewTemplate(filename string) (*Template, error) {
 }
 
 // Execute evaluates the template
-func (t *Template) Execute() error {
+func (t *Template) Execute(consul Client) error {
 	tmpl := template.New("")
+	tmpl.Funcs(template.FuncMap{
+		"key": keyFunc(consul),
+	})
 
 	tmpl, err := tmpl.Parse(t.contents)
 	if err != nil {

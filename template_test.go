@@ -6,25 +6,19 @@ import (
 	"testing"
 )
 
+type InMemoryClient struct {
+	data map[string]interface{}
+}
+
+func (c *InMemoryClient) Read(path string) (interface{}, error) {
+	return c.data[path], nil
+}
+
 // Test that parser returns error when template cannot be found
 func TestTemplate_TemplateNotFound(t *testing.T) {
 	_, err := NewTemplate("death-star-was-an-inside-job.txt")
 	if err == nil {
-		t.Fatal("expected an error")
-	}
-}
-
-// Test that parser can read and return parsed template
-func TestTemplate_Render(t *testing.T) {
-	in := createTempfile([]byte("hello world"), t)
-	defer deleteTempfile(in, t)
-
-	tmpl, _ := NewTemplate(in.Name())
-	tmpl.Execute()
-
-	out := "hello world"
-	if tmpl.Contents() != out {
-		t.Fatalf("expected %q to match %q", tmpl.Contents(), out)
+		t.Fatal("expected an error, but got nil")
 	}
 }
 
@@ -34,9 +28,28 @@ func TestTemplate_UnknownFunc(t *testing.T) {
 	defer deleteTempfile(in, t)
 
 	tmpl, _ := NewTemplate(in.Name())
-	err := tmpl.Execute()
+	err := tmpl.Execute(nil)
 	if err == nil {
-		t.Fatal("expected an error")
+		t.Fatal("expected an error, but got nil")
+	}
+}
+
+// Test that template rendering resolves dependencies
+func TestTemplate_Render(t *testing.T) {
+	in := createTempfile([]byte(`host = {{ key "service/myservice/db/host" }}`), t)
+	defer deleteTempfile(in, t)
+
+	tmpl, _ := NewTemplate(in.Name())
+
+	cd := make(map[string]interface{})
+	cd["service/myservice/db/host"] = "my-host"
+	consul := &InMemoryClient{cd}
+
+	tmpl.Execute(consul)
+
+	out := `host = my-host`
+	if tmpl.Contents() != out {
+		t.Fatalf("expected %q to match %q", tmpl.Contents(), out)
 	}
 }
 
