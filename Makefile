@@ -11,6 +11,20 @@ build:
 test:
 	go test -cover $(GO_PKGS)
 
+.PHONY: consul
+consul:
+	consul agent -dev
+
+.PHONY: vault
+vault:
+	vault server -dev -dev-root-token-id="root"
+
+.PHONY: testdata
+testdata:
+	consul kv put services/myservice/db/host myexampledb.a1b2c3d4wxyz.us-west-2.rds.amazonaws.com
+	consul kv put services/myservice/db/database awsdatabase
+	vault kv put secret/services/myservice/db username=awsuser password=awssecretpassword
+
 .PHONY: clean
 clean:
 	@rm -f "$(PROJECT_ROOT)/knock-knock"
