@@ -14,7 +14,7 @@ Download and install using go get:
 go get -u github.com/romantomjak/knock-knock
 ```
 
-or grab a binary from [releases](knock-knock/releases/latest) section!
+or grab a binary from [releases](/romantomjak/knock-knock/releases/latest) section!
 
 ### Configuration
 
