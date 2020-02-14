@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	consulapi "github.com/hashicorp/consul/api"
-	"github.com/hashicorp/vault/api"
 	vaultapi "github.com/hashicorp/vault/api"
 )
 
@@ -136,7 +135,7 @@ func (c *Vault) isKVv2(path string) (string, bool, error) {
 
 		return "", false, err
 	}
-	secret, err := api.ParseSecret(resp.Body)
+	secret, err := vaultapi.ParseSecret(resp.Body)
 	if err != nil {
 		return "", false, err
 	}
