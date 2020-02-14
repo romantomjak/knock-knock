@@ -3,7 +3,7 @@ PROJECT_ROOT := $(patsubst %/,%,$(dir $(abspath $(lastword $(MAKEFILE_LIST)))))
 GIT_COMMIT := $(shell git rev-parse HEAD)
 GO_PKGS := $(shell go list ./...)
 
-VERSION := 1.0.0
+VERSION := 1.1.0
 PLATFORMS := darwin linux windows
 os = $(word 1, $@)
 
