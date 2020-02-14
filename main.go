@@ -27,10 +27,10 @@ func main() {
 }
 
 func Run(stdin io.Reader, stdout, stderr io.Writer, args []string) int {
-	var config string
+	var filename string
 
 	flags := flag.NewFlagSet("knock-knock", flag.ContinueOnError)
-	flags.StringVar(&config, "c", "", "configuration file")
+	flags.StringVar(&filename, "c", "", "configuration file")
 	flags.Usage = func() {
 		fmt.Fprintln(stderr, strings.TrimSpace(usage))
 	}
@@ -39,16 +39,16 @@ func Run(stdin io.Reader, stdout, stderr io.Writer, args []string) int {
 		return 1
 	}
 
-	if config == "" {
+	if filename == "" {
 		home, err := os.UserHomeDir()
 		if err != nil {
 			fmt.Fprintln(stderr, err)
 			return 1
 		}
-		config = fmt.Sprintf("%s/.knock-knock.toml", home)
+		filename = fmt.Sprintf("%s/.knock-knock.toml", home)
 	}
 
-	tmpl, err := NewTemplate(config)
+	tmpl, err := NewTemplate(filename)
 	if err != nil {
 		fmt.Fprintln(stderr, err)
 		return 1
