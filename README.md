@@ -18,9 +18,9 @@ or grab a binary from [releases](https://github.com/romantomjak/knock-knock/rele
 
 ### Configuration
 
-Configuration file is a [Go template](https://golang.org/pkg/html/template/) with [TOML](https://en.wikipedia.org/wiki/TOML) syntax and by default is searched in `~/.knock-knock.toml`
+Configuration by default is read from `~/.knock-knock.conf`. It is based on the [INI](https://en.wikipedia.org/wiki/INI_file) file format which is rendered by Go [template](https://golang.org/pkg/html/template/).
 
-```hcl
+```ini
 [myservice]
 host = {{ key "services/myservice/db/host" }}
 port = 5432
@@ -29,8 +29,9 @@ password = {{ with secret "secret/services/myservice/db" }}{{ .Data.password }}{
 dbname = {{ key "services/myservice/db/database" }}
 ```
 
-TOML sections are your service names. `key` retrieves values from Consul and
-likewise `secret` is for retrieving secrets from Vault.
+Sections are your service names. They appear on a line by itself, in square
+brackets ([ and ]). `key` retrieves values from Consul and likewise `secret`
+is for retrieving secrets from Vault.
 
 #### Vault K/V version 2 backend
 
@@ -45,7 +46,8 @@ information about using the K/V v2 backend, see the [Vault Documentation](https:
 
 ### Usage
 
-Running the application requires to specify a service name from the TOML file:
+Running the application requires you to specify a service name from the
+configuration file:
 
 ```sh
 $ knock-knock myservice
