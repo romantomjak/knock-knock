@@ -6,6 +6,8 @@ import (
 	"io"
 	"os"
 	"strings"
+
+	"gopkg.in/ini.v1"
 )
 
 const (
@@ -36,6 +38,12 @@ func Run(stdin io.Reader, stdout, stderr io.Writer, args []string) int {
 	}
 
 	if err := flags.Parse(args); err != nil {
+		return 1
+	}
+
+	arguments := flags.Args()
+	if len(arguments) != 1 {
+		fmt.Fprintln(stderr, strings.TrimSpace(usage))
 		return 1
 	}
 
@@ -72,6 +80,21 @@ func Run(stdin io.Reader, stdout, stderr io.Writer, args []string) int {
 		return 1
 	}
 
-	fmt.Fprintln(stdout, tmpl.Contents())
+	config, err := ini.Load([]byte(tmpl.Contents()))
+	if err != nil {
+		fmt.Fprintln(stderr, err)
+		return 1
+	}
+
+	section, err := config.GetSection(arguments[0])
+	if err != nil {
+		fmt.Fprintln(stderr, err)
+		return 1
+	}
+
+	for _, key := range section.Keys() {
+		fmt.Fprintln(stdout, fmt.Sprintf("%s = %s", key.Name(), key.Value()))
+	}
+
 	return 0
 }
