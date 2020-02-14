@@ -35,7 +35,7 @@ is for retrieving secrets from Vault.
 
 #### Vault K/V version 2 backend
 
-To access a versioned secret value:
+Here's how to access a versioned secret value:
 
 ```hcl
 password = {{ with secret "secret/services/myservice/db" }}{{ .Data.data.password }}{{ end }}
