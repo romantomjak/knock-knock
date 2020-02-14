@@ -20,7 +20,7 @@ Usage: knock-knock [options] service
 Options:
 
   -c=<path>
-	The path to a configuration file on disk. Defaults to ~/.knock-knock.toml
+	The path to a configuration file on disk. Defaults to ~/.knock-knock.conf
 `
 )
 
@@ -53,7 +53,7 @@ func Run(stdin io.Reader, stdout, stderr io.Writer, args []string) int {
 			fmt.Fprintln(stderr, err)
 			return 1
 		}
-		filename = fmt.Sprintf("%s/.knock-knock.toml", home)
+		filename = fmt.Sprintf("%s/.knock-knock.conf", home)
 	}
 
 	tmpl, err := NewTemplate(filename)
