@@ -50,6 +50,9 @@ Running the application requires you to specify a service name from the
 configuration file:
 
 ```sh
+export VAULT_AUTH_GITHUB_TOKEN=<mygithubtoken>
+export VAULT_ADDR=http://127.0.0.1:8200
+export CONSUL_HTTP_ADDR=127.0.0.1:8500
 $ knock-knock myservice
 host = myexampledb.a1b2c3d4wxyz.us-west-2.rds.amazonaws.com
 port = 5432
