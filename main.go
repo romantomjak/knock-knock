@@ -4,15 +4,17 @@ import (
 	"flag"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"os"
 	"strings"
 
+	"github.com/posener/complete"
 	"gopkg.in/ini.v1"
 )
 
 const (
 	usage = `
-Usage: knock-knock [options] service
+Usage: knock-knock [-help] [-autocomplete-(un)install] [options] service
 
   Reads a template file with KV and secret paths and renders service
   credentials on screen.
@@ -37,8 +39,33 @@ func Run(stdin io.Reader, stdout, stderr io.Writer, args []string) int {
 		fmt.Fprintln(stderr, strings.TrimSpace(usage))
 	}
 
-	if err := flags.Parse(args); err != nil {
+	// shell auto completion
+	cmp := complete.New(
+		"knock-knock",
+		complete.Command{
+			Args: complete.PredictFunc(sectionNames),
+			GlobalFlags: complete.Flags{
+				"-help":                   complete.PredictNothing,
+				"-autocomplete-install":   complete.PredictNothing,
+				"-autocomplete-uninstall": complete.PredictNothing,
+				"-c":                      complete.PredictFiles("*.conf"),
+			},
+		},
+	)
+	cmp.CLI.InstallName = "autocomplete-install"
+	cmp.CLI.UninstallName = "autocomplete-uninstall"
+	cmp.AddFlags(flags)
+
+	err := flags.Parse(args)
+	if err != nil {
 		return 1
+	}
+
+	// in case that the completion was invoked and ran as a completion script
+	// or handled a flag, the Complete method will return true, in which case,
+	// the program has nothing to do and should return
+	if cmp.Complete() {
+		return 0
 	}
 
 	arguments := flags.Args()
@@ -48,12 +75,11 @@ func Run(stdin io.Reader, stdout, stderr io.Writer, args []string) int {
 	}
 
 	if filename == "" {
-		home, err := os.UserHomeDir()
+		filename, err = defaultFilename()
 		if err != nil {
 			fmt.Fprintln(stderr, err)
 			return 1
 		}
-		filename = fmt.Sprintf("%s/.knock-knock.conf", home)
 	}
 
 	tmpl, err := NewTemplate(filename)
@@ -97,4 +123,35 @@ func Run(stdin io.Reader, stdout, stderr io.Writer, args []string) int {
 	}
 
 	return 0
+}
+
+// defaultFilename returns the full path to the default configuration file
+func defaultFilename() (string, error) {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return "", fmt.Errorf("configuration file was not provided and %s", err)
+	}
+	return fmt.Sprintf("%s/.knock-knock.conf", home), nil
+}
+
+// sectionNames reads sections names from the default configuration file.
+// It is used for providing suggestions for shell auto completion.
+func sectionNames(args complete.Args) []string {
+	filename, err := defaultFilename()
+	if err != nil {
+		return nil
+	}
+
+	contents, err := ioutil.ReadFile(filename)
+	if err != nil {
+		return nil
+	}
+
+	config, err := ini.Load([]byte(contents))
+	if err != nil {
+		return nil
+	}
+
+	// all sections minus the DEFAULT section
+	return config.SectionStrings()[1:]
 }
