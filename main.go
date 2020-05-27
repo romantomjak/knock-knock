@@ -39,7 +39,7 @@ func Run(stdin io.Reader, stdout, stderr io.Writer, args []string) int {
 		fmt.Fprintln(stderr, strings.TrimSpace(usage))
 	}
 
-	// shell auto completion
+	// shell autocompletion
 	cmp := complete.New(
 		"knock-knock",
 		complete.Command{
@@ -135,7 +135,7 @@ func defaultFilename() (string, error) {
 }
 
 // sectionNames reads sections names from the default configuration file.
-// It is used for providing suggestions for shell auto completion.
+// It is used for providing suggestions for shell autocompletion.
 func sectionNames(args complete.Args) []string {
 	filename, err := defaultFilename()
 	if err != nil {

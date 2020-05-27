@@ -33,9 +33,20 @@ Sections are your service names. They appear on a line by itself, in square
 brackets ([ and ]). `key` retrieves values from Consul and likewise `secret`
 is for retrieving secrets from Vault.
 
+#### Autocomplete
+
+knock-knock supports configuration section autocomplete. Autocomplete can be
+installed or uninstalled by running the following on bash or zsh shells:
+
+```sh
+knock-knock -autocomplete-install
+knock-knock -autocomplete-uninstall
+```
+
 #### Vault K/V version 2 backend
 
-Here's how to access a versioned secret value:
+Version 2 of the K/V backend can retain a configurable number of versions for
+each key. Here's how to access a versioned secret value:
 
 ```hcl
 password = {{ with secret "secret/services/myservice/db" }}{{ .Data.data.password }}{{ end }}
